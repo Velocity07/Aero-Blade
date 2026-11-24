@@ -83,8 +83,8 @@ graph LR
 
 ### 1. Setup & Install
 ```bash
-git clone [https://github.com/](https://github.com/)<your-username>/aero-blade.git
-cd aero-blade
+git clone [https://github.com/Velocity07/Aero-Blade.git](https://github.com/Velocity07/Aero-Blade.git)
+cd Aero-Blade
 
 python -m venv venv
 # Windows:

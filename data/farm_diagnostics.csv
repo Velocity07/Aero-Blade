@@ -1,0 +1,7 @@
+turbine_id,row,pitting_prob,wake_impact_prob,status,matched_log_id,nlp_similarity,recommended_action
+T01,1,0.0,0.019,HEALTHY,MNT-104,0.998,Continue standard automated telemetry monitoring.
+T02,1,0.0,0.04,HEALTHY,MNT-104,0.998,Continue standard automated telemetry monitoring.
+T03,1,0.985,0.118,CRITICAL: BLADE MICRO-PITTING,MNT-101,0.995,Schedule rope-access blade leading-edge resurfacing within 14 days.
+T04,2,0.0,0.034,HEALTHY,MNT-104,0.998,Continue standard automated telemetry monitoring.
+T05,2,0.001,0.038,HEALTHY,MNT-104,0.998,Continue standard automated telemetry monitoring.
+T06,2,0.01,0.171,HEALTHY,MNT-104,0.998,Continue standard automated telemetry monitoring.

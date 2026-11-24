@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aero-blade-gateway
+  labels:
+    app: aero-blade
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aero-blade
+  template:
+    metadata:
+      labels:
+        app: aero-blade
+    spec:
+      containers:
+        - name: graphql-onnx-gateway
+          image: aero-blade:latest
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aero-blade-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: aero-blade
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

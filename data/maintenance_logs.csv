@@ -1,0 +1,5 @@
+log_id,fault_type,notes,recommended_action
+MNT-101,Leading-Edge Micro-Pitting,High-frequency 3.8 kHz acoustic whistle synced with blade passing frequency; leading-edge gelcoat pitting repaired with polyurethane protective tape.,Schedule rope-access blade leading-edge resurfacing within 14 days.
+MNT-102,Downwind Wake Buffeting,Elevated downwind turbulence and wind speed deficit caused by upwind rotor wake; blade surface intact with zero structural pitting.,Apply yaw-offset wake steering on upwind turbine; no blade repair needed.
+MNT-103,Gearbox Bearing Spalling,Continuous 1.2 kHz metallic whine independent of blade passing frequency; high-speed shaft bearing replaced.,Inspect nacelle gearbox oil vibration spectrum.
+MNT-104,Nominal Operation,Normal broadband aerodynamic whoosh and balanced root strain telemetry across all three blades.,Continue standard automated telemetry monitoring.

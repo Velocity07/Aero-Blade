@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AERO-BLADE | Wind Turbine Aero-Acoustic &amp; Wake Telemetry</title>
+    <style>
+        :root {
+            --forest: #3E503C;
+            --forest-deep: #2B3829;
+            --sage: #7F886A;
+            --sage-dark: #5B644A;
+            --cream: #F3ECDB;
+            --cream-light: #FAF6EC;
+            --cream-shade: #E7DEC8;
+            --signal: #FF6F3D;
+            --signal-soft: rgba(255, 111, 61, 0.14);
+            --border-hairline: rgba(62, 80, 60, 0.18);
+            --border-strong: rgba(62, 80, 60, 0.34);
+            --font-sans: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--cream);
+            color: var(--forest-deep);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            line-height: 1.45;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .topbar {
+            height: 44px;
+            background: var(--forest);
+            color: var(--cream);
+            border-bottom: 1px solid var(--forest-deep);
+            padding: 0 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            font-size: 12px;
+            color: var(--cream);
+        }
+
+        .brand-dot {
+            width: 9px;
+            height: 9px;
+            background: var(--signal);
+            display: inline-block;
+        }
+
+        .divider-v {
+            width: 1px;
+            height: 16px;
+            background: rgba(243, 236, 219, 0.25);
+        }
+
+        .breadcrumb {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: rgba(243, 236, 219, 0.72);
+        }
+
+        .breadcrumb span {
+            color: var(--cream);
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .sys-pill {
+            padding: 3px 9px;
+            background: rgba(243, 236, 219, 0.10);
+            border: 1px solid rgba(243, 236, 219, 0.22);
+            border-radius: 3px;
+            color: rgba(243, 236, 219, 0.85);
+        }
+
+        .sys-pill strong {
+            color: var(--cream);
+            font-weight: 700;
+        }
+
+        .sys-pill.crit {
+            background: var(--signal);
+            border-color: var(--signal);
+            color: var(--forest-deep);
+            font-weight: 700;
+        }
+
+        .sys-pill.nominal {
+            background: rgba(127, 136, 106, 0.35);
+            border-color: var(--sage);
+            color: var(--cream);
+        }
+
+        .btn-link {
+            color: var(--cream);
+            text-decoration: none;
+            padding: 3px 9px;
+            border: 1px solid rgba(243, 236, 219, 0.45);
+            border-radius: 3px;
+            transition: background 0.15s;
+        }
+
+        .btn-link:hover {
+            background: rgba(243, 236, 219, 0.14);
+        }
+
+        .control-strip {
+            background: var(--cream-shade);
+            border-bottom: 1px solid var(--border-hairline);
+            padding: 8px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .strip-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--forest);
+        }
+
+        .strip-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .ctrl-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--sage-dark);
+        }
+
+        .ctrl-inline strong {
+            font-family: var(--font-mono);
+            color: var(--forest);
+            min-width: 50px;
+        }
+
+        select {
+            background: var(--cream-light);
+            color: var(--forest-deep);
+            border: 1px solid var(--border-strong);
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        input[type="range"] {
+            accent-color: var(--signal);
+            width: 110px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--signal);
+            color: var(--forest-deep);
+            border: 1px solid rgba(43, 56, 41, 0.25);
+            border-radius: 3px;
+            padding: 5px 13px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(0.95);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 12px;
+            padding: 12px 18px 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--cream-light);
+            border: 1px solid var(--border-hairline);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-head {
+            height: 34px;
+            padding: 0 12px;
+            border-bottom: 1px solid var(--border-hairline);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(127, 136, 106, 0.14);
+            gap: 8px;
+        }
+
+        .panel-title {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--forest);
+        }
+
+        .panel-meta {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--sage-dark);
+        }
+
+        .panel-body {
+            padding: 12px;
+            flex: 1;
+        }
+
+        .col-topology {
+            grid-column: span 7;
+        }
+
+        .col-inspector {
+            grid-column: span 5;
+        }
+
+        .col-fft {
+            grid-column: span 6;
+        }
+
+        .col-trend {
+            grid-column: span 6;
+        }
+
+        .col-matrix {
+            grid-column: span 7;
+        }
+
+        .col-logs {
+            grid-column: span 5;
+        }
+
+        @media (max-width: 1180px) {
+
+            .col-topology,
+            .col-inspector,
+            .col-fft,
+            .col-trend,
+            .col-matrix,
+            .col-logs {
+                grid-column: span 12;
+            }
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            background: var(--cream);
+            border: 1px solid var(--border-hairline);
+            border-radius: 3px;
+        }
+
+        #farmCanvas {
+            height: 298px;
+            cursor: pointer;
+        }
+
+        #fftCanvas {
+            height: 215px;
+            cursor: crosshair;
+        }
+
+        #trendCanvas {
+            height: 215px;
+            cursor: crosshair;
+        }
+
+        .inspector-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-hairline);
+        }
+
+        .node-id-title {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        .node-sub {
+            font-size: 11px;
+            color: var(--sage-dark);
+        }
+
+        .status-tag {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 3px;
+            letter-spacing: 0.04em;
+        }
+
+        .status-tag.crit {
+            background: var(--signal);
+            color: var(--forest-deep);
+        }
+
+        .status-tag.ok {
+            background: var(--forest);
+            color: var(--cream);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin-bottom: 11px;
+        }
+
+        .kpi-cell {
+            background: var(--cream);
+            border: 1px solid var(--border-hairline);
+            padding: 7px 9px;
+            border-radius: 3px;
+        }
+
+        .kpi-cell .k-lbl {
+            font-size: 9.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--sage-dark);
+        }
+
+        .kpi-cell .k-val {
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            font-weight: 700;
+            margin-top: 2px;
+            color: var(--forest-deep);
+        }
+
+        .prob-block {
+            margin-bottom: 9px;
+        }
+
+        .prob-header {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--forest);
+        }
+
+        .track {
+            height: 7px;
+            background: var(--cream-shade);
+            border: 1px solid var(--border-hairline);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            transition: width 0.25s ease;
+        }
+
+        .ticket-card {
+            background: var(--cream);
+            border: 1px solid var(--border-strong);
+            border-left: 4px solid var(--signal);
+            padding: 9px 11px;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+
+        .ticket-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--forest);
+            margin-bottom: 4px;
+        }
+
+        .ticket-body {
+            font-size: 12px;
+            color: var(--forest-deep);
+            margin-bottom: 8px;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-ghost {
+            background: var(--cream-light);
+            border: 1px solid var(--border-strong);
+            color: var(--forest);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-ghost:hover {
+            background: var(--forest);
+            color: var(--cream);
+            border-color: var(--forest);
+        }
+
+        .btn-ghost.dispatched {
+            background: var(--forest);
+            border-color: var(--forest);
+            color: var(--cream);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        th {
+            text-align: left;
+            padding: 7px 8px;
+            color: var(--cream);
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            background: var(--forest);
+            border-bottom: 1px solid var(--forest-deep);
+        }
+
+        td {
+            padding: 7px 8px;
+            border-bottom: 1px solid var(--border-hairline);
+            color: var(--forest-deep);
+        }
+
+        tr.data-row {
+            cursor: pointer;
+        }
+
+        tr.data-row:hover {
+            background: rgba(127, 136, 106, 0.16);
+        }
+
+        tr.data-row.selected {
+            background: var(--signal-soft);
+        }
+
+        .log-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .log-filters {
+            display: flex;
+            gap: 4px;
+        }
+
+        .filter-btn {
+            background: var(--cream);
+            border: 1px solid var(--border-hairline);
+            color: var(--sage-dark);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            border-color: var(--forest);
+            color: var(--cream);
+            background: var(--forest);
+        }
+
+        .log-search {
+            background: var(--cream);
+            border: 1px solid var(--border-hairline);
+            color: var(--forest-deep);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            padding: 3px 7px;
+            border-radius: 3px;
+            width: 115px;
+            outline: none;
+        }
+
+        .log-stream {
+            background: var(--cream);
+            border: 1px solid var(--border-hairline);
+            border-radius: 3px;
+            height: 215px;
+            overflow-y: auto;
+            padding: 6px 8px;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+        }
+
+        .log-entry {
+            padding: 3.5px 0;
+            border-bottom: 1px dashed rgba(62, 80, 60, 0.14);
+            display: grid;
+            grid-template-columns: 74px 62px 1fr;
+            gap: 6px;
+            align-items: baseline;
+        }
+
+        .log-ts {
+            color: var(--sage-dark);
+        }
+
+        .log-lvl-CRITICAL {
+            color: #D9481A;
+            font-weight: 700;
+        }
+
+        .log-lvl-WARN {
+            color: var(--forest);
+            font-weight: 700;
+        }
+
+        .log-lvl-INFO {
+            color: var(--sage-dark);
+            font-weight: 600;
+        }
+
+        .log-msg {
+            color: var(--forest-deep);
+            word-break: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="brand-mark">
+                <span class="brand-dot"></span>
+                <span>AERO-BLADE</span>
+            </div>
+            <div class="divider-v"></div>
+            <div class="breadcrumb">SITE: <span id="farmNameLabel">NORTH-SEA-ALPHA-01</span> // SCADA-ACOUSTIC-GRAPH
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="sys-pill">ONNX RUNTIME: <strong id="latencyPill">-- ms</strong></div>
+            <div class="sys-pill nominal" id="alertPill">CRITICAL NODES: 0</div>
+            <a href="/graphql" target="_blank" class="btn-link">GRAPHQL API</a>
+        </div>
+    </header>
+
+    <div class="control-strip">
+        <div class="strip-label">ACOUSTIC &amp; WAKE SCENARIO CONTROLS</div>
+        <div class="strip-controls">
+            <div class="ctrl-inline">
+                <span>INFLOW WIND:</span>
+                <input type="range" id="windSlider" min="7.0" max="16.0" step="0.5" value="11.5"
+                    oninput="document.getElementById('windVal').innerText = parseFloat(this.value).toFixed(1) + ' m/s'" />
+                <strong id="windVal">11.5 m/s</strong>
+            </div>
+            <div class="ctrl-inline">
+                <span>TARGET TURBINE:</span>
+                <select id="targetSelect">
+                    <option value="T01">T01 [ROW-1]</option>
+                    <option value="T02">T02 [ROW-1]</option>
+                    <option value="T03">T03 [ROW-1]</option>
+                    <option value="T04">T04 [ROW-2]</option>
+                    <option value="T05">T05 [ROW-2]</option>
+                    <option value="T06">T06 [ROW-2]</option>
+                </select>
+            </div>
+            <div class="ctrl-inline">
+                <span>EROSION SEVERITY:</span>
+                <input type="range" id="erosionSlider" min="0.05" max="0.95" step="0.05" value="0.75"
+                    oninput="document.getElementById('erosionVal').innerText = parseFloat(this.value).toFixed(2)" />
+                <strong id="erosionVal">0.75</strong>
+            </div>
+            <button class="btn-primary" id="runBtn" onclick="executeLiveSimulation()">RUN DSP + ONNX</button>
+        </div>
+    </div>
+
+    <main class="workspace">
+        <!-- 01: Array Topology & Wake Schematic -->
+        <section class="panel col-topology">
+            <div class="panel-head">
+                <span class="panel-title">01 // Array Topology &amp; Jensen Wake Schematic</span>
+                <span class="panel-meta">6 NODES • 7 DIRECTED EDGES • CLICK TURBINE</span>
+            </div>
+            <div class="panel-body">
+                <canvas id="farmCanvas"></canvas>
+            </div>
+        </section>
+
+        <!-- 02: Turbine Telemetry & Diagnostics -->
+        <section class="panel col-inspector">
+            <div class="panel-head">
+                <span class="panel-title">02 // Turbine Telemetry &amp; Diagnostics</span>
+                <span class="panel-meta" id="neighborMeta">WAKE COUPLING: --</span>
+            </div>
+            <div class="panel-body">
+                <div class="inspector-top">
+                    <div>
+                        <div class="node-id-title" id="selTitle">TURBINE T03</div>
+                        <div class="node-sub" id="selSub">Row 1 Upwind Array • Direct Freestream Inflow</div>
+                    </div>
+                    <span class="status-tag ok" id="selStatus">NOMINAL</span>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-cell">
+                        <div class="k-lbl">Wind / Rotor RPM</div>
+                        <div class="k-val" id="mWindRpm">--</div>
+                    </div>
+                    <div class="kpi-cell">
+                        <div class="k-lbl">Blade Passing (BPF)</div>
+                        <div class="k-val" id="mBpf">--</div>
+                    </div>
+                    <div class="kpi-cell">
+                        <div class="k-lbl">3.8 kHz Band SPL</div>
+                        <div class="k-val" id="mHfDb">--</div>
+                    </div>
+                    <div class="kpi-cell">
+                        <div class="k-lbl">Band Energy Ratio</div>
+                        <div class="k-val" id="mHfRatio">--</div>
+                    </div>
+                    <div class="kpi-cell">
+                        <div class="k-lbl">Spectral Kurtosis</div>
+                        <div class="k-val" id="mKurtosis">--</div>
+                    </div>
+                    <div class="kpi-cell">
+                        <div class="k-lbl">SCADA Root Strain</div>
+                        <div class="k-val" id="mStrain">--</div>
+                    </div>
+                </div>
+
+                <div class="prob-block">
+                    <div class="prob-header">
+                        <span>GNN BLADE MICRO-PITTING PROBABILITY</span>
+                        <span id="pittingPct">0.0%</span>
+                    </div>
+                    <div class="track">
+                        <div class="fill" id="pittingBar" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <div class="prob-block">
+                    <div class="prob-header">
+                        <span>DOWNWIND WAKE TURBULENCE EXPOSURE</span>
+                        <span id="wakePct">0.0%</span>
+                    </div>
+                    <div class="track">
+                        <div class="fill" id="wakeBar" style="width:0%;background:#7F886A"></div>
+                    </div>
+                </div>
+
+                <div class="ticket-card">
+                    <div class="ticket-head">
+                        <span id="nlpTag">MAINTENANCE LOG MATCH // --</span>
+                        <span id="nlpScore">COSINE SIM: --</span>
+                    </div>
+                    <div class="ticket-body" id="nlpAction">Loading telemetry...</div>
+                    <div class="action-row">
+                        <button class="btn-ghost" id="dispatchBtn" onclick="dispatchWorkOrder()">DISPATCH WORK
+                            ORDER</button>
+                        <button class="btn-ghost" id="audioBtn" onclick="toggleNacelleAudio()">LISTEN NACELLE MIC (16
+                            kHz)</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 03: Real Scipy RFFT Power Spectral Density -->
+        <section class="panel col-fft">
+            <div class="panel-head">
+                <span class="panel-title">03 // Acoustic Power Spectral Density (0 - 8 kHz Scipy RFFT)</span>
+                <span class="panel-meta" id="fftHoverMeta">HOVER PLOT FOR BIN READOUT</span>
+            </div>
+            <div class="panel-body">
+                <canvas id="fftCanvas"></canvas>
+            </div>
+        </section>
+
+        <!-- 04: 30-Day SCADA Strain vs. Acoustic Energy -->
+        <section class="panel col-trend">
+            <div class="panel-head">
+                <span class="panel-title">04 // 30-Day SCADA Strain vs. Acoustic Energy</span>
+                <span class="panel-meta" id="trendHoverMeta">HOVER PLOT FOR DAILY VALUES</span>
+            </div>
+            <div class="panel-body">
+                <canvas id="trendCanvas"></canvas>
+            </div>
+        </section>
+
+        <!-- 05: Array Telemetry Matrix -->
+        <section class="panel col-matrix">
+            <div class="panel-head">
+                <span class="panel-title">05 // Array Telemetry Matrix</span>
+                <a href="/api/telemetry.csv" class="btn-ghost">EXPORT CSV</a>
+            </div>
+            <div class="panel-body" style="padding:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Turbine</th>
+                            <th>Row</th>
+                            <th>Wind</th>
+                            <th>BPF</th>
+                            <th>Band SPL</th>
+                            <th>Kurtosis</th>
+                            <th>Strain</th>
+                            <th>GNN Risk</th>
+                            <th>State</th>
+                            <th>Ticket</th>
+                        </tr>
+                    </thead>
+                    <tbody id="telemetryTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 06: System & Inference Event Log -->
+        <section class="panel col-logs">
+            <div class="panel-head">
+                <span class="panel-title">06 // System &amp; Inference Event Log</span>
+                <span class="panel-meta" id="logCountMeta">0 EVENTS</span>
+            </div>
+            <div class="panel-body">
+                <div class="log-toolbar">
+                    <div class="log-filters">
+                        <button class="filter-btn active" onclick="setLogFilter('ALL', this)">ALL</button>
+                        <button class="filter-btn" onclick="setLogFilter('CRITICAL', this)">CRITICAL</button>
+                        <button class="filter-btn" onclick="setLogFilter('WARN', this)">WARN</button>
+                        <button class="filter-btn" onclick="setLogFilter('INFO', this)">INFO</button>
+                    </div>
+                    <div style="display:flex;gap:5px;">
+                        <input type="text" class="log-search" id="logSearchInput" placeholder="Search logs..."
+                            oninput="renderLogs()" />
+                        <button class="btn-ghost" onclick="clearLogs()">CLEAR</button>
+                        <button class="btn-ghost" onclick="exportLogsJson()">JSON</button>
+                    </div>
+                </div>
+                <div class="log-stream" id="logStream"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const PALETTE = {
+            forest: "#3E503C",
+            forestDeep: "#2B3829",
+            sage: "#7F886A",
+            sageDark: "#5B644A",
+            cream: "#F3ECDB",
+            creamLight: "#FAF6EC",
+            signal: "#FF6F3D",
+        };
+
+        let turbines = [];
+        let selectedId = "T03";
+        let rotorAngles = [0.2, 1.4, 2.5, 0.7, 1.9, 3.0];
+        let auditLogs = [];
+        let currentLogFilter = "ALL";
+        let dispatchedTickets = new Set();
+        let fftHoverIdx = -1;
+        let trendHoverIdx = -1;
+        let activeAudio = null;
+
+        const nodePositions = {
+            T01: { rx: 0.22, ry: 0.28 },
+            T02: { rx: 0.50, ry: 0.28 },
+            T03: { rx: 0.78, ry: 0.28 },
+            T04: { rx: 0.22, ry: 0.76 },
+            T05: { rx: 0.50, ry: 0.76 },
+            T06: { rx: 0.78, ry: 0.76 },
+        };
+
+        const GRAPHQL_FIELDS = `
+      farmName
+      criticalCount
+      onnxInferenceMs
+      activeScenario {
+        baseWindMs
+        damagedTurbineId
+        erosionLevel
+      }
+      turbines {
+        turbineId row avgWindMs avgRpm avgBpfHz avgHfDb avgStrainUe
+        acousticAnomalyIndex hfEnergyRatio spectralKurtosis
+        pittingProb wakeImpactProb status matchedLogId nlpSimilarity
+        recommendedAction upwindTurbineId downwindTurbineId
+        spectrumBins { freqKhz powerDb }
+        history30d { dayLabel acousticDb strainUe }
+      }
+    `;
+
+        function nowTimestamp() {
+            const d = new Date();
+            return d.toTimeString().split(" ")[0] + "." + String(d.getMilliseconds()).padStart(3, "0");
+        }
+
+        function pushLog(level, message) {
+            auditLogs.unshift({ ts: nowTimestamp(), level, message });
+            if (auditLogs.length > 150) auditLogs.pop();
+            renderLogs();
+        }
+
+        function clearLogs() {
+            auditLogs = [];
+            renderLogs();
+        }
+
+        function setLogFilter(level, btn) {
+            currentLogFilter = level;
+            document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const query = document.getElementById("logSearchInput").value.trim().toLowerCase();
+            const filtered = auditLogs.filter((entry) => {
+                const matchLvl = currentLogFilter === "ALL" || entry.level === currentLogFilter;
+                const matchTxt = !query || entry.message.toLowerCase().includes(query) || entry.level.toLowerCase().includes(query);
+                return matchLvl && matchTxt;
+            });
+
+            document.getElementById("logCountMeta").innerText = `${filtered.length} EVENTS`;
+            document.getElementById("logStream").innerHTML = filtered
+                .map(
+                    (e) => `
+          <div class="log-entry">
+            <span class="log-ts">${e.ts}</span>
+            <span class="log-lvl-${e.level}">[${e.level}]</span>
+            <span class="log-msg">${e.message}</span>
+          </div>`
+                )
+                .join("");
+        }
+
+        function exportLogsJson() {
+            const blob = new Blob([JSON.stringify(auditLogs, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `aero-blade-events-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            pushLog("INFO", "Exported event log snapshot to JSON.");
+        }
+
+        function stopAudio() {
+            if (activeAudio) {
+                activeAudio.pause();
+                activeAudio = null;
+            }
+            const btn = document.getElementById("audioBtn");
+            if (btn) btn.innerText = "LISTEN NACELLE MIC (16 kHz)";
+        }
+
+        function toggleNacelleAudio() {
+            const btn = document.getElementById("audioBtn");
+            if (activeAudio) {
+                stopAudio();
+                return;
+            }
+            const url = `/api/audio/${selectedId}.wav?t=${Date.now()}`;
+            activeAudio = new Audio(url);
+            btn.innerText = `STOP MIC STREAM (${selectedId})`;
+            pushLog("INFO", `[DSP-AUDIO] Streaming 16 kHz acoustic waveform for ${selectedId}.`);
+            activeAudio.onended = () => stopAudio();
+            activeAudio.play().catch(() => stopAudio());
+        }
+
+        function setupHiDpiCanvas(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== Math.round(rect.width * dpr) || canvas.height !== Math.round(rect.height * dpr)) {
+                canvas.width = Math.round(rect.width * dpr);
+                canvas.height = Math.round(rect.height * dpr);
+            }
+            const ctx = canvas.getContext("2d");
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return { ctx, w: rect.width, h: rect.height };
+        }
+
+        function syncScenarioControls(scen) {
+            if (!scen) return;
+            document.getElementById("windSlider").value = scen.baseWindMs;
+            document.getElementById("windVal").innerText = scen.baseWindMs.toFixed(1) + " m/s";
+            document.getElementById("targetSelect").value = scen.damagedTurbineId;
+            document.getElementById("erosionSlider").value = scen.erosionLevel;
+            document.getElementById("erosionVal").innerText = scen.erosionLevel.toFixed(2);
+        }
+
+        async function fetchFarmSummary() {
+            const res = await fetch("/graphql", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: `query { farmSummary { ${GRAPHQL_FIELDS} } }` }),
+            });
+            const json = await res.json();
+            const summary = json.data.farmSummary;
+            if (summary.activeScenario) {
+                syncScenarioControls(summary.activeScenario);
+                selectedId = summary.activeScenario.damagedTurbineId;
+            }
+            pushLog("INFO", `Loaded cluster ${summary.farmName} (ONNX tensor inference: ${summary.onnxInferenceMs.toFixed(2)} ms).`);
+            applySummary(summary, true);
+        }
+
+        async function executeLiveSimulation() {
+            stopAudio();
+            const btn = document.getElementById("runBtn");
+            btn.disabled = true;
+            btn.innerText = "RUNNING...";
+
+            const wind = parseFloat(document.getElementById("windSlider").value);
+            const target = document.getElementById("targetSelect").value;
+            const erosion = parseFloat(document.getElementById("erosionSlider").value);
+            selectedId = target;
+            dispatchedTickets.delete(target);
+
+            pushLog("WARN", `Running 16 kHz acoustic DSP + ONNX GNN -> V=${wind.toFixed(1)}m/s, node=${target}, erosion=${erosion.toFixed(2)}`);
+
+            const mutation = `
+        mutation {
+          simulateLiveScenario(baseWindMs: ${wind}, damagedTurbineId: "${target}", erosionLevel: ${erosion}) {
+            ${GRAPHQL_FIELDS}
+          }
+        }`;
+            const res = await fetch("/graphql", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: mutation }),
+            });
+            const json = await res.json();
+            btn.disabled = false;
+            btn.innerText = "RUN DSP + ONNX";
+            applySummary(json.data.simulateLiveScenario, true);
+        }
+
+        function applySummary(summary, emitAlerts) {
+            turbines = summary.turbines;
+            document.getElementById("farmNameLabel").innerText = summary.farmName.toUpperCase();
+            document.getElementById("latencyPill").innerText = `${summary.onnxInferenceMs.toFixed(2)} ms`;
+
+            const alertPill = document.getElementById("alertPill");
+            alertPill.innerText = `CRITICAL NODES: ${summary.criticalCount}`;
+            alertPill.className = summary.criticalCount > 0 ? "sys-pill crit" : "sys-pill nominal";
+
+            if (emitAlerts) {
+                turbines.forEach((t) => {
+                    if (t.status.includes("CRITICAL")) {
+                        pushLog(
+                            "CRITICAL",
+                            `[ONNX-GNN] ${t.turbineId} pitting=${(t.pittingProb * 100).toFixed(1)}% | SPL=${t.avgHfDb.toFixed(1)}dB | kurt=${t.spectralKurtosis.toFixed(2)} -> ${t.matchedLogId}`
+                        );
+                    }
+                });
+            }
+
+            const tbody = document.getElementById("telemetryTable");
+            tbody.innerHTML = "";
+            turbines.forEach((t) => {
+                const isCrit = t.status.includes("CRITICAL");
+                const isSel = t.turbineId === selectedId;
+                const tr = document.createElement("tr");
+                tr.className = `data-row ${isSel ? "selected" : ""}`;
+                tr.onclick = () => selectTurbine(t.turbineId);
+                tr.innerHTML = `
+          <td><strong>${t.turbineId}</strong></td>
+          <td>R${t.row}</td>
+          <td>${t.avgWindMs.toFixed(2)} m/s</td>
+          <td>${t.avgBpfHz.toFixed(3)} Hz</td>
+          <td style="color:${isCrit ? "#D9481A" : "#2B3829"};font-weight:${isCrit ? "700" : "400"}">${t.avgHfDb.toFixed(2)} dB</td>
+          <td style="color:${isCrit ? "#D9481A" : "#2B3829"};font-weight:${isCrit ? "700" : "400"}">${t.spectralKurtosis.toFixed(2)}</td>
+          <td>${t.avgStrainUe.toFixed(1)} µε</td>
+          <td>${(t.pittingProb * 100).toFixed(1)}%</td>
+          <td style="color:${isCrit ? "#D9481A" : "#3E503C"};font-weight:700">${isCrit ? "CRITICAL" : "NOMINAL"}</td>
+          <td>${t.matchedLogId}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            renderInspector();
+            drawFftSpectrum();
+            drawDivergenceTrend();
+        }
+
+        function selectTurbine(id) {
+            stopAudio();
+            selectedId = id;
+            pushLog("INFO", `Selected turbine ${id} for spectral & wake inspection.`);
+            document.querySelectorAll("#telemetryTable tr.data-row").forEach((tr) => {
+                tr.classList.toggle("selected", tr.firstElementChild.innerText.trim() === id);
+            });
+            renderInspector();
+            drawFftSpectrum();
+            drawDivergenceTrend();
+        }
+
+        function renderInspector() {
+            const t = turbines.find((item) => item.turbineId === selectedId) || turbines[0];
+            if (!t) return;
+
+            const isCrit = t.status.includes("CRITICAL");
+            document.getElementById("selTitle").innerText = `TURBINE ${t.turbineId}`;
+            document.getElementById("selSub").innerText =
+                t.row === 1
+                    ? "Row 1 Upwind Array • Direct Freestream Inflow"
+                    : `Row 2 Leeward Array • Downwind of ${t.upwindTurbineId || "Row 1"} (-18% V_∞)`;
+
+            document.getElementById("neighborMeta").innerText = t.downwindTurbineId
+                ? `DOWNWIND TARGET: ${t.downwindTurbineId} (w=0.65)`
+                : `UPWIND SOURCE: ${t.upwindTurbineId} (w=0.65)`;
+
+            const pill = document.getElementById("selStatus");
+            pill.innerText = isCrit ? "CRITICAL: MICRO-PITTING" : "NOMINAL OPERATION";
+            pill.className = isCrit ? "status-tag crit" : "status-tag ok";
+
+            document.getElementById("mWindRpm").innerText = `${t.avgWindMs.toFixed(1)} m/s • ${t.avgRpm.toFixed(1)}`;
+            document.getElementById("mBpf").innerText = `${t.avgBpfHz.toFixed(3)} Hz`;
+            document.getElementById("mHfDb").innerText = `${t.avgHfDb.toFixed(2)} dB`;
+            document.getElementById("mHfRatio").innerText = `${(t.hfEnergyRatio * 100).toFixed(1)}%`;
+            document.getElementById("mKurtosis").innerText = `${t.spectralKurtosis.toFixed(2)}`;
+            document.getElementById("mStrain").innerText = `${t.avgStrainUe.toFixed(1)} µε`;
+
+            const pitPct = (t.pittingProb * 100).toFixed(1) + "%";
+            document.getElementById("pittingPct").innerText = pitPct;
+            const pitBar = document.getElementById("pittingBar");
+            pitBar.style.width = pitPct;
+            pitBar.style.background = isCrit ? PALETTE.signal : PALETTE.forest;
+
+            const wakePct = (t.wakeImpactProb * 100).toFixed(1) + "%";
+            document.getElementById("wakePct").innerText = wakePct;
+            document.getElementById("wakeBar").style.width = wakePct;
+
+            document.getElementById("nlpTag").innerText = `MAINTENANCE LOG MATCH // ${t.matchedLogId}`;
+            document.getElementById("nlpScore").innerText = `COSINE SIM: ${t.nlpSimilarity.toFixed(3)}`;
+            document.getElementById("nlpAction").innerText = t.recommendedAction;
+
+            const btn = document.getElementById("dispatchBtn");
+            if (dispatchedTickets.has(t.turbineId)) {
+                btn.className = "btn-ghost dispatched";
+                btn.innerText = isCrit ? `WORK ORDER ACTIVE (${t.matchedLogId})` : `INSPECTION LOGGED (${t.turbineId})`;
+            } else {
+                btn.className = "btn-ghost";
+                btn.innerText = isCrit ? `DISPATCH WORK ORDER (${t.matchedLogId})` : "LOG ROUTINE INSPECTION";
+            }
+        }
+
+        function dispatchWorkOrder() {
+            const t = turbines.find((item) => item.turbineId === selectedId);
+            if (!t) return;
+            const isCrit = t.status.includes("CRITICAL");
+            dispatchedTickets.add(t.turbineId);
+            renderInspector();
+            if (isCrit) {
+                pushLog("WARN", `[WORK-ORDER] Dispatched ticket ${t.matchedLogId} for ${t.turbineId}: "${t.recommendedAction}"`);
+            } else {
+                pushLog("INFO", `[INSPECTION] Routine telemetry verified for ${t.turbineId} (${t.matchedLogId} • Nominal).`);
+            }
+        }
+
+        /* 01: Array Topology & Wake Schematic */
+        const farmCanvas = document.getElementById("farmCanvas");
+        farmCanvas.addEventListener("click", (e) => {
+            const rect = farmCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            for (const [id, rpos] of Object.entries(nodePositions)) {
+                const px = rpos.rx * rect.width;
+                const py = rpos.ry * rect.height;
+                if (Math.hypot(mx - px, my - py) < 38) {
+                    selectTurbine(id);
+                    break;
+                }
+            }
+        });
+
+        function drawFarmTopology() {
+            const { ctx, w, h } = setupHiDpiCanvas(farmCanvas);
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.strokeStyle = "rgba(127, 136, 106, 0.16)";
+            ctx.lineWidth = 1;
+            for (let gx = 0; gx < w; gx += 32) {
+                ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke();
+            }
+            for (let gy = 0; gy < h; gy += 32) {
+                ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+            }
+
+            ctx.strokeStyle = PALETTE.forest;
+            ctx.fillStyle = PALETTE.forest;
+            ctx.font = "bold 10px Consolas, monospace";
+            ctx.textAlign = "left";
+            ctx.fillText("WIND VECTOR 000° N", 14, 18);
+            ctx.beginPath();
+            ctx.moveTo(22, 26); ctx.lineTo(22, 52);
+            ctx.lineTo(18, 46); ctx.moveTo(22, 52); ctx.lineTo(26, 46);
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(62, 80, 60, 0.24)";
+            ctx.setLineDash([3, 3]);
+            [["T01", "T02"], ["T02", "T03"], ["T04", "T05"], ["T05", "T06"]].forEach(([a, b]) => {
+                ctx.beginPath();
+                ctx.moveTo(nodePositions[a].rx * w, nodePositions[a].ry * h);
+                ctx.lineTo(nodePositions[b].rx * w, nodePositions[b].ry * h);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            [["T01", "T04"], ["T02", "T05"], ["T03", "T06"]].forEach(([upId, downId]) => {
+                const ux = nodePositions[upId].rx * w;
+                const uy = nodePositions[upId].ry * h;
+                const dx = nodePositions[downId].rx * w;
+                const dy = nodePositions[downId].ry * h;
+                const upT = turbines.find((t) => t.turbineId === upId);
+                const isCrit = upT && upT.status.includes("CRITICAL");
+
+                const grad = ctx.createLinearGradient(ux, uy, dx, dy);
+                grad.addColorStop(0, isCrit ? "rgba(255, 111, 61, 0.28)" : "rgba(127, 136, 106, 0.28)");
+                grad.addColorStop(1, "rgba(243, 236, 219, 0.04)");
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.moveTo(ux - 16, uy);
+                ctx.lineTo(ux + 16, uy);
+                ctx.lineTo(dx + 34, dy);
+                ctx.lineTo(dx - 34, dy);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = PALETTE.sageDark;
+                ctx.font = "9.5px Consolas, monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("w=0.65 (-18% V)", ux, (uy + dy) / 2 + 14);
+            });
+
+            turbines.forEach((t, idx) => {
+                const px = nodePositions[t.turbineId].rx * w;
+                const py = nodePositions[t.turbineId].ry * h;
+                const isCrit = t.status.includes("CRITICAL");
+                const isSel = t.turbineId === selectedId;
+                const ringColor = isCrit ? PALETTE.signal : PALETTE.forest;
+
+                if (isSel) {
+                    ctx.beginPath();
+                    ctx.arc(px, py, 34, 0, Math.PI * 2);
+                    ctx.strokeStyle = PALETTE.signal;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                ctx.beginPath();
+                ctx.arc(px, py, 25, 0, Math.PI * 2);
+                ctx.fillStyle = isCrit ? "rgba(255, 111, 61, 0.16)" : PALETTE.creamLight;
+                ctx.fill();
+                ctx.strokeStyle = ringColor;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                rotorAngles[idx] += (t.avgRpm || 12) * 0.0022;
+                ctx.save();
+                ctx.translate(px, py);
+                ctx.rotate(rotorAngles[idx]);
+                ctx.strokeStyle = PALETTE.forestDeep;
+                ctx.lineWidth = 2.2;
+                for (let b = 0; b < 3; b++) {
+                    ctx.rotate((Math.PI * 2) / 3);
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, -18);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                ctx.beginPath();
+                ctx.arc(px, py, 3.2, 0, Math.PI * 2);
+                ctx.fillStyle = isCrit ? PALETTE.signal : PALETTE.forest;
+                ctx.fill();
+
+                ctx.fillStyle = PALETTE.forestDeep;
+                ctx.font = "bold 11px Consolas, monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(`${t.turbineId} | ${t.avgHfDb.toFixed(1)} dB`, px, py + 41);
+            });
+
+            requestAnimationFrame(drawFarmTopology);
+        }
+
+        /* 03: Real Scipy RFFT Spectrum with Non-Overlapping Header Readout */
+        const fftCanvas = document.getElementById("fftCanvas");
+        fftCanvas.addEventListener("mousemove", (e) => {
+            const t = turbines.find((item) => item.turbineId === selectedId);
+            if (!t || !t.spectrumBins) return;
+            const rect = fftCanvas.getBoundingClientRect();
+            const padL = 40, padR = 14;
+            const ratio = (e.clientX - rect.left - padL) / (rect.width - padL - padR);
+            const idx = Math.round(ratio * (t.spectrumBins.length - 1));
+            fftHoverIdx = idx >= 0 && idx < t.spectrumBins.length ? idx : -1;
+            drawFftSpectrum();
+        });
+        fftCanvas.addEventListener("mouseleave", () => {
+            fftHoverIdx = -1;
+            document.getElementById("fftHoverMeta").innerText = "HOVER PLOT FOR BIN READOUT";
+            drawFftSpectrum();
+        });
+
+        function drawFftSpectrum() {
+            const { ctx, w, h } = setupHiDpiCanvas(fftCanvas);
+            ctx.clearRect(0, 0, w, h);
+
+            const t = turbines.find((item) => item.turbineId === selectedId);
+            if (!t || !t.spectrumBins || t.spectrumBins.length === 0) return;
+
+            const bins = t.spectrumBins;
+            const padL = 40, padR = 14, padT = 24, padB = 26;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            // Butterworth 3.2 - 4.4 kHz Passband Shading
+            const xBandStart = padL + (3.2 / 8.0) * plotW;
+            const xBandEnd = padL + (4.4 / 8.0) * plotW;
+            ctx.fillStyle = "rgba(127, 136, 106, 0.22)";
+            ctx.fillRect(xBandStart, padT, xBandEnd - xBandStart, plotH);
+
+            ctx.strokeStyle = PALETTE.sageDark;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(xBandStart, padT); ctx.lineTo(xBandStart, padT + plotH);
+            ctx.moveTo(xBandEnd, padT); ctx.lineTo(xBandEnd, padT + plotH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Y-Axis Grid
+            ctx.strokeStyle = "rgba(62, 80, 60, 0.12)";
+            ctx.fillStyle = PALETTE.sageDark;
+            ctx.font = "9.5px Consolas, monospace";
+            ctx.textAlign = "right";
+            [20, 40, 60, 80].forEach((db) => {
+                const y = padT + plotH - ((db - 10) / 80) * plotH;
+                ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+                ctx.fillText(`${db}dB`, padL - 5, y + 3);
+            });
+
+            // X-Axis Labels
+            ctx.textAlign = "center";
+            [0, 1, 2, 3, 3.8, 5, 6, 7, 8].forEach((khz) => {
+                const x = padL + (khz / 8.0) * plotW;
+                ctx.fillStyle = khz === 3.8 ? "#D9481A" : PALETTE.sageDark;
+                ctx.font = khz === 3.8 ? "bold 9.5px Consolas, monospace" : "9.5px Consolas, monospace";
+                ctx.fillText(`${khz}k`, x, h - 8);
+            });
+
+            // Plot Real Backend RFFT Curve
+            ctx.beginPath();
+            bins.forEach((pt, idx) => {
+                const x = padL + (pt.freqKhz / 8.0) * plotW;
+                const y = padT + plotH - ((pt.powerDb - 10) / 80) * plotH;
+                if (idx === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = t.pittingProb > 0.5 ? PALETTE.signal : PALETTE.forest;
+            ctx.lineWidth = 2.2;
+            ctx.stroke();
+
+            // Clean Top-Left Legend Strip (No Overlap with Passband Borders)
+            ctx.fillStyle = PALETTE.forestDeep;
+            ctx.font = "bold 10px Consolas, monospace";
+            ctx.textAlign = "left";
+            ctx.fillText(`FILTER BAND: 3.2–4.4 kHz | ${t.turbineId} SPL: ${t.avgHfDb.toFixed(1)} dB | KURTOSIS: ${t.spectralKurtosis.toFixed(2)}`, padL + 4, 14);
+
+            if (fftHoverIdx >= 0 && fftHoverIdx < bins.length) {
+                const pt = bins[fftHoverIdx];
+                const hx = padL + (pt.freqKhz / 8.0) * plotW;
+                const hy = padT + plotH - ((pt.powerDb - 10) / 80) * plotH;
+                document.getElementById("fftHoverMeta").innerText = `BIN: ${pt.freqKhz.toFixed(3)} kHz • ${pt.powerDb.toFixed(2)} dB`;
+
+                ctx.strokeStyle = "rgba(62, 80, 60, 0.45)";
+                ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + plotH); ctx.stroke();
+
+                ctx.fillStyle = PALETTE.signal;
+                ctx.beginPath(); ctx.arc(hx, hy, 4, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        /* 04: Real 30-Day Telemetry Divergence */
+        const trendCanvas = document.getElementById("trendCanvas");
+        trendCanvas.addEventListener("mousemove", (e) => {
+            const t = turbines.find((item) => item.turbineId === selectedId);
+            if (!t || !t.history30d) return;
+            const rect = trendCanvas.getBoundingClientRect();
+            const padL = 40, padR = 44;
+            const ratio = (e.clientX - rect.left - padL) / (rect.width - padL - padR);
+            const idx = Math.round(ratio * (t.history30d.length - 1));
+            trendHoverIdx = idx >= 0 && idx < t.history30d.length ? idx : -1;
+            drawDivergenceTrend();
+        });
+        trendCanvas.addEventListener("mouseleave", () => {
+            trendHoverIdx = -1;
+            document.getElementById("trendHoverMeta").innerText = "HOVER PLOT FOR DAILY VALUES";
+            drawDivergenceTrend();
+        });
+
+        function drawDivergenceTrend() {
+            const { ctx, w, h } = setupHiDpiCanvas(trendCanvas);
+            ctx.clearRect(0, 0, w, h);
+
+            const t = turbines.find((item) => item.turbineId === selectedId);
+            if (!t || !t.history30d || t.history30d.length === 0) return;
+
+            const hist = t.history30d;
+            const padL = 40, padR = 44, padT = 18, padB = 26;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            ctx.strokeStyle = "rgba(62, 80, 60, 0.12)";
+            ctx.font = "9.5px Consolas, monospace";
+            [0, 0.25, 0.5, 0.75, 1.0].forEach((frac) => {
+                const y = padT + plotH - frac * plotH;
+                ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+
+                const dbTick = Math.round(35 + frac * 40);
+                const strainTick = Math.round(350 + frac * 150);
+                ctx.fillStyle = t.pittingProb > 0.5 ? "#D9481A" : PALETTE.forest;
+                ctx.textAlign = "right";
+                ctx.fillText(`${dbTick}dB`, padL - 5, y + 3);
+
+                ctx.fillStyle = PALETTE.sageDark;
+                ctx.textAlign = "left";
+                ctx.fillText(`${strainTick}µε`, padL + plotW + 5, y + 3);
+            });
+
+            ctx.fillStyle = PALETTE.sageDark;
+            ctx.textAlign = "center";
+            [0, 6, 12, 18, 24, 29].forEach((idx) => {
+                const x = padL + (idx / (hist.length - 1)) * plotW;
+                ctx.fillText(hist[idx].dayLabel, x, h - 8);
+            });
+
+            ctx.beginPath();
+            hist.forEach((pt, idx) => {
+                const x = padL + (idx / (hist.length - 1)) * plotW;
+                const norm = (pt.strainUe - 350) / 150;
+                const y = padT + plotH - Math.max(0, Math.min(1, norm)) * plotH;
+                if (idx === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = PALETTE.sage;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            hist.forEach((pt, idx) => {
+                const x = padL + (idx / (hist.length - 1)) * plotW;
+                const norm = (pt.acousticDb - 35) / 40;
+                const y = padT + plotH - Math.max(0, Math.min(1, norm)) * plotH;
+                if (idx === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = t.pittingProb > 0.5 ? PALETTE.signal : PALETTE.forest;
+            ctx.lineWidth = 2.4;
+            ctx.stroke();
+
+            ctx.font = "bold 10px Consolas, monospace";
+            ctx.textAlign = "left";
+            ctx.fillStyle = t.pittingProb > 0.5 ? "#D9481A" : PALETTE.forest;
+            ctx.fillText("— 3.8 kHz ACOUSTIC SPL (dB)", padL + 8, padT + 13);
+            ctx.fillStyle = PALETTE.sageDark;
+            ctx.fillText("— SCADA ROOT STRAIN (µε)", padL + 8, padT + 26);
+
+            if (trendHoverIdx >= 0 && trendHoverIdx < hist.length) {
+                const pt = hist[trendHoverIdx];
+                const hx = padL + (trendHoverIdx / (hist.length - 1)) * plotW;
+                const hyAc = padT + plotH - ((pt.acousticDb - 35) / 40) * plotH;
+                document.getElementById("trendHoverMeta").innerText =
+                    `${pt.dayLabel}: ${pt.acousticDb.toFixed(1)} dB | ${pt.strainUe.toFixed(1)} µε`;
+
+                ctx.strokeStyle = "rgba(62, 80, 60, 0.45)";
+                ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + plotH); ctx.stroke();
+
+                ctx.fillStyle = PALETTE.signal;
+                ctx.beginPath(); ctx.arc(hx, hyAc, 4, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        window.addEventListener("resize", () => {
+            drawFftSpectrum();
+            drawDivergenceTrend();
+        });
+
+        pushLog("INFO", "Aero-Blade telemetry client initialized.");
+        fetchFarmSummary().then(() => drawFarmTopology());
+    </script>
+</body>
+
+</html>
